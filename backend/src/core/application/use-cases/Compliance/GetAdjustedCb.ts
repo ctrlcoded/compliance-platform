@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import { GetAdjustedCbUseCase, AdjustedCbOutput } from '../../ports/inbound/GetAdjustedCbUseCase';
-import { ComputeCbQueryDto } from '../../application/dto/ComplianceDTO';
-import { DomainError } from '../../domain/errors/DomainError';
+import { GetAdjustedCbUseCase, AdjustedCbOutput } from '../../../ports/inbound/GetAdjustedCbUseCase';
+import { ComputeCbQueryDto } from '../../dto/ComplianceDTO';
+import { DomainError } from '../../../domain/errors/DomainError';
 
 export class GetAdjustedCb implements GetAdjustedCbUseCase {
     constructor(private readonly prisma: PrismaClient) { }
