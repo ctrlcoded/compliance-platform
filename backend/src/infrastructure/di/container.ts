@@ -1,0 +1,57 @@
+import { DrizzleShipComplianceRepository } from '../../adapters/outbound/postgres/repositories/DrizzleShipComplianceRepository';
+import { ComputeComplianceBalance } from '../../core/application/use-cases/ComputeComplianceBalance';
+import { ComplianceController } from '../../adapters/inbound/http/controllers/ComplianceController';
+import { RoutesController } from '../../adapters/inbound/http/controllers/RoutesController';
+import { BankingController } from '../../adapters/inbound/http/controllers/BankingController';
+import { PoolsController } from '../../adapters/inbound/http/controllers/PoolsController';
+
+class DIContainer {
+    private static instance: DIContainer;
+
+    // Singletons
+    private shipComplianceRepository: DrizzleShipComplianceRepository;
+    private computeComplianceBalance: ComputeComplianceBalance;
+    private complianceController: ComplianceController;
+    private routesController: RoutesController;
+    private bankingController: BankingController;
+    private poolsController: PoolsController;
+
+    private constructor() {
+        // 1. Repositories
+        this.shipComplianceRepository = new DrizzleShipComplianceRepository();
+
+        // 2. Use Cases
+        this.computeComplianceBalance = new ComputeComplianceBalance(this.shipComplianceRepository);
+
+        // 3. Controllers
+        this.complianceController = new ComplianceController(this.computeComplianceBalance);
+        this.routesController = new RoutesController();
+        this.bankingController = new BankingController();
+        this.poolsController = new PoolsController();
+    }
+
+    public static getInstance(): DIContainer {
+        if (!DIContainer.instance) {
+            DIContainer.instance = new DIContainer();
+        }
+        return DIContainer.instance;
+    }
+
+    public getComplianceController(): ComplianceController {
+        return this.complianceController;
+    }
+
+    public getRoutesController(): RoutesController {
+        return this.routesController;
+    }
+
+    public getBankingController(): BankingController {
+        return this.bankingController;
+    }
+
+    public getPoolsController(): PoolsController {
+        return this.poolsController;
+    }
+}
+
+export const container = DIContainer.getInstance();

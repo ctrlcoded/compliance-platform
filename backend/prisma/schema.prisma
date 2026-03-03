@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BankEntryType {
+  BANK
+  APPLY
+}
+
+model Route {
+  id                    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  routeId               String   @map("route_id") @db.VarChar(50)
+  shipId                String   @map("ship_id") @db.VarChar(50)
+  vesselType            String   @map("vessel_type") @db.VarChar(50)
+  fuelType              String   @map("fuel_type") @db.VarChar(50)
+  year                  Int
+  ghgIntensity          Decimal  @map("ghg_intensity") @db.Decimal(10, 4)
+  fuelConsumptionTonnes Decimal  @map("fuel_consumption_tonnes") @db.Decimal(14, 4)
+  distanceKm            Decimal  @map("distance_km") @db.Decimal(14, 2)
+  totalEmissionsTonnes  Decimal  @map("total_emissions_tonnes") @db.Decimal(14, 4)
+  isBaseline            Boolean  @default(false) @map("is_baseline")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Note: The conditional unique index for baseline per year is enforced via custom SQL migration.
+  @@index([shipId, year])
+  @@index([year])
+  @@map("routes")
+}
+
+model ShipCompliance {
+  id                        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  shipId                    String   @map("ship_id") @db.VarChar(50)
+  year                      Int
+  targetIntensity           Decimal  @map("target_intensity") @db.Decimal(10, 4)
+  actualIntensity           Decimal  @map("actual_intensity") @db.Decimal(10, 4)
+  energyInScope             Decimal  @map("energy_in_scope") @db.Decimal(18, 4)
+  complianceBalance         Decimal  @map("compliance_balance") @db.Decimal(20, 4)
+  adjustedComplianceBalance Decimal? @map("adjusted_compliance_balance") @db.Decimal(20, 4)
+  createdAt                 DateTime @default(now()) @map("created_at")
+  updatedAt                 DateTime @default(now()) @updatedAt @map("updated_at")
+
+  bankEntries BankEntry[]
+
+  // Composite unique key forming the aggregate boundary constraint
+  @@unique([shipId, year])
+  @@index([shipId, year])
+  @@map("ship_compliance")
+}
+
+model BankEntry {
+  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  shipId    String        @map("ship_id") @db.VarChar(50)
+  year      Int
+  type      BankEntryType
+  amount    Decimal       @db.Decimal(20, 4)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  // Foreign key mapping to ShipCompliance. Prevent deletions of ledger data via Restrict.
+  compliance ShipCompliance @relation(fields: [shipId, year], references: [shipId, year], onDelete: Restrict)
+
+  @@index([shipId, year])
+  @@map("bank_entries")
+}
+
+model Pool {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  year      Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  members PoolMember[]
+
+  @@index([year])
+  @@map("pools")
+}
+
+model PoolMember {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  poolId    String   @map("pool_id") @db.Uuid
+  shipId    String   @map("ship_id") @db.VarChar(50)
+  cbBefore  Decimal  @map("cb_before") @db.Decimal(20, 4)
+  cbAfter   Decimal  @map("cb_after") @db.Decimal(20, 4)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Cascade delete cleans up all members when parent pool resolves/drops
+  pool Pool @relation(fields: [poolId], references: [id], onDelete: Cascade)
+
+  @@index([poolId])
+  @@index([shipId])
+  @@map("pool_members")
+}
