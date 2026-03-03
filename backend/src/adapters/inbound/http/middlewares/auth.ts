@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../../../../infrastructure/config/env';
 
-// For simplicity in this architectural demo, use a fixed secret or fallback
-const JWT_SECRET = env.NODE_ENV === 'test' ? 'test-secret' : 'super-secure-production-secret';
+// Use the securely validated secret from environment
+const JWT_SECRET = env.JWT_SECRET;
 
 declare global {
     namespace Express {
