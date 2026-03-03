@@ -94,3 +94,11 @@ model PoolMember {
   @@index([shipId])
   @@map("pool_members")
 }
+
+model IdempotencyKey {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key       String   @unique @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("idempotency_keys")
+}

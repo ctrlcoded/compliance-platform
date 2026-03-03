@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
+import { PrismaClient } from '@prisma/client';
 
-// In a real production system, this would be backed by Redis using the key `idempotency:${key}`.
-// For this implementation, we use an in-memory Set as a stub.
-const processedKeys = new Set<string>();
+// Dedicated Prisma Client instance for middleware resolution
+const prisma = new PrismaClient();
 
-export const idempotency = (req: Request, res: Response, next: NextFunction) => {
+export const idempotency = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (req.method === 'GET') {
         return next();
     }
@@ -12,25 +12,30 @@ export const idempotency = (req: Request, res: Response, next: NextFunction) => 
     const idempotencyKey = req.header('Idempotency-Key');
 
     if (!idempotencyKey) {
-        return next(); // Or return 400 if we want to strictly require it for POST/PUT.
+        return next(); // Strictly this could return 400 for mutation endpoints
     }
 
-    if (processedKeys.has(idempotencyKey)) {
-        return res.status(409).json({
-            error: {
-                code: 'IDEMPOTENCY_CONFLICT',
-                message: 'A request with this Idempotency-Key has already been processed.',
-            },
+    try {
+        // Attempt an atomic insert. A unique constraint ensures identical keys block.
+        await prisma.idempotencyKey.create({
+            data: { key: idempotencyKey }
         });
+
+        // Let the request proceed on success
+        next();
+    } catch (error: any) {
+        // P2002 is the Prisma specific unique constraint violation code
+        if (error.code === 'P2002') {
+            res.status(409).json({
+                error: {
+                    code: 'IDEMPOTENCY_CONFLICT',
+                    message: 'A request with this Idempotency-Key has already been processed.',
+                },
+            });
+            return;
+        }
+
+        // Pass system failures down to the global error handler gracefully
+        next(error);
     }
-
-    // Mark the key as processed.
-    processedKeys.add(idempotencyKey);
-
-    // Cleanup to avoid memory leak in this stub
-    setTimeout(() => {
-        processedKeys.delete(idempotencyKey);
-    }, 24 * 60 * 60 * 1000); // 24 hours
-
-    next();
 };
