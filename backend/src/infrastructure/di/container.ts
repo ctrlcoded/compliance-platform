@@ -7,13 +7,10 @@ import { PoolsController } from '../../adapters/inbound/http/controllers/PoolsCo
 import { BankSurplus } from '../../core/application/use-cases/BankSurplus';
 import { ApplyBanked } from '../../core/application/use-cases/ApplyBanked';
 import { GetLedger } from '../../core/application/use-cases/GetLedger';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../database/prisma';
 
 class DIContainer {
     private static instance: DIContainer;
-
-    // Infrastructure
-    private prisma: PrismaClient;
 
     // Singletons
     private shipComplianceRepository: DrizzleShipComplianceRepository;
@@ -28,16 +25,14 @@ class DIContainer {
     private getLedgerUseCase: GetLedger;
 
     private constructor() {
-        this.prisma = new PrismaClient();
-
         // 1. Repositories
         this.shipComplianceRepository = new DrizzleShipComplianceRepository();
 
         // 2. Use Cases
         this.computeComplianceBalance = new ComputeComplianceBalance(this.shipComplianceRepository);
-        this.bankSurplusUseCase = new BankSurplus(this.prisma);
-        this.applyBankedUseCase = new ApplyBanked(this.prisma);
-        this.getLedgerUseCase = new GetLedger(this.prisma);
+        this.bankSurplusUseCase = new BankSurplus(prisma);
+        this.applyBankedUseCase = new ApplyBanked(prisma);
+        this.getLedgerUseCase = new GetLedger(prisma);
 
         // 3. Controllers
         this.complianceController = new ComplianceController(this.computeComplianceBalance);

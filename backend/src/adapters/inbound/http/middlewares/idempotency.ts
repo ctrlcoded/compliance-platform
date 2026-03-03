@@ -1,8 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
-
-// Dedicated Prisma Client instance for middleware resolution
-const prisma = new PrismaClient();
+import { prisma } from '../../../../infrastructure/database/prisma';
 
 export const idempotency = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (req.method === 'GET') {
