@@ -9,6 +9,7 @@ const envSchema = z.object({
     DATABASE_URL: z.string().url(),
     LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
     JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters long for security"),
+    FRONTEND_URL: z.string().url().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
