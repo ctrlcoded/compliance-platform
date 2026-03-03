@@ -10,7 +10,10 @@ export class ApplyBanked implements ApplyBankedUseCase {
 
     public async execute(input: ApplyBankedBodyDto): Promise<ApplyBankedOutput> {
         return this.prisma.$transaction(async (tx) => {
-            // 1. Fetch current Compliance Balance
+            // 1. Acquire row-level lock proactively to prevent concurrent banking/applying overlaps
+            await tx.$executeRaw`SELECT 1 FROM ship_compliance WHERE ship_id = ${input.shipId} AND year = ${input.year} FOR UPDATE`;
+
+            // 2. Fetch current Compliance Balance
             const currentYearRecord = await tx.shipCompliance.findUnique({
                 where: {
                     shipId_year: {

@@ -10,7 +10,10 @@ export class BankSurplus implements BankSurplusUseCase {
 
     public async execute(input: BankSurplusBodyDto): Promise<BankSurplusOutput> {
         return this.prisma.$transaction(async (tx) => {
-            // 1. Fetch current Compliance Balance defensively with aggressive locking if needed
+            // 1. Acquire row-level lock proactively to prevent double-banking requests from racing
+            await tx.$executeRaw`SELECT 1 FROM ship_compliance WHERE ship_id = ${input.shipId} AND year = ${input.year} FOR UPDATE`;
+
+            // 2. Fetch current Compliance Balance defensively
             const complianceRecord = await tx.shipCompliance.findUnique({
                 where: {
                     shipId_year: {
