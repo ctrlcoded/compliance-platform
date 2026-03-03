@@ -29,11 +29,15 @@ export class EnergyInScope {
 export class ComplianceBalanceValue {
     private constructor(public readonly value: number) { }
 
+    private static round4(val: number): number {
+        return Math.round(val * 10000) / 10000;
+    }
+
     public static create(value: number): ComplianceBalanceValue {
         if (!Number.isFinite(value)) {
             throw new DomainError('Compliance balance must be a finite number', 'INVALID_COMPLIANCE_BALANCE');
         }
-        return new ComplianceBalanceValue(value);
+        return new ComplianceBalanceValue(this.round4(value));
     }
 
     public isSurplus(): boolean {
