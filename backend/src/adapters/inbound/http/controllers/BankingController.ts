@@ -1,47 +1,53 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { getLedgerQuerySchema, bankSurplusBodySchema, applyBankedBodySchema } from '../../../../core/application/dto/BankingDTO';
+import { BankSurplusUseCase } from '../../../../core/ports/inbound/BankSurplusUseCase';
+import { ApplyBankedUseCase } from '../../../../core/ports/inbound/ApplyBankedUseCase';
+import { GetLedgerUseCase } from '../../../../core/ports/inbound/GetLedgerUseCase';
 
 export class BankingController {
+    constructor(
+        private readonly bankSurplusUseCase: BankSurplusUseCase,
+        private readonly applyBankedUseCase: ApplyBankedUseCase,
+        private readonly getLedgerUseCase: GetLedgerUseCase
+    ) { }
 
-    public async getRecords(req: Request, res: Response): Promise<void> {
-        const query = getLedgerQuerySchema.parse(req.query);
+    public async getRecords(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const query = getLedgerQuerySchema.parse(req.query);
+            const records = await this.getLedgerUseCase.execute(query);
 
-        res.status(200).json({
-            data: [
-                {
-                    bankEntryId: "B001",
-                    type: "BANK",
-                    amount: 5000000,
-                    createdAt: "2025-02-01T10:00:00Z"
+            res.status(200).json({
+                data: records.data,
+                pagination: {
+                    page: query.page,
+                    limit: query.limit,
+                    total: records.total
                 }
-            ],
-            pagination: {
-                page: query.page,
-                limit: query.limit,
-                total: 1
-            }
-        });
+            });
+        } catch (error) {
+            next(error);
+        }
     }
 
-    public async bank(req: Request, res: Response): Promise<void> {
-        const body = bankSurplusBodySchema.parse(req.body);
+    public async bank(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const body = bankSurplusBodySchema.parse(req.body);
+            const result = await this.bankSurplusUseCase.execute(body);
 
-        res.status(201).json({
-            data: {
-                bankedAmount: body.amount,
-                remainingSurplus: 1000000 // Dummy value 
-            }
-        });
+            res.status(201).json({ data: result });
+        } catch (error) {
+            next(error);
+        }
     }
 
-    public async apply(req: Request, res: Response): Promise<void> {
-        const body = applyBankedBodySchema.parse(req.body);
+    public async apply(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const body = applyBankedBodySchema.parse(req.body);
+            const result = await this.applyBankedUseCase.execute(body);
 
-        res.status(200).json({
-            data: {
-                applied: body.amount,
-                remainingBanked: 3000000 // Dummy value
-            }
-        });
+            res.status(200).json({ data: result });
+        } catch (error) {
+            next(error);
+        }
     }
 }
