@@ -1,0 +1,5 @@
+
+> frontend@0.0.0 build
+> tsc && vite build
+
+src/services/api.ts(4,26): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
