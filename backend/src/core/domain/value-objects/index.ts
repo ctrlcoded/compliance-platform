@@ -1,4 +1,5 @@
 import { DomainError } from '../errors/DomainError';
+import { round4 } from '../utils/rounding';
 
 export class GHGIntensity {
     private constructor(public readonly value: number) { }
@@ -29,15 +30,11 @@ export class EnergyInScope {
 export class ComplianceBalanceValue {
     private constructor(public readonly value: number) { }
 
-    private static round4(val: number): number {
-        return Math.round(val * 10000) / 10000;
-    }
-
     public static create(value: number): ComplianceBalanceValue {
         if (!Number.isFinite(value)) {
             throw new DomainError('Compliance balance must be a finite number', 'INVALID_COMPLIANCE_BALANCE');
         }
-        return new ComplianceBalanceValue(this.round4(value));
+        return new ComplianceBalanceValue(round4(value));
     }
 
     public isSurplus(): boolean {
@@ -49,6 +46,7 @@ export class ComplianceBalanceValue {
     }
 
     public add(amount: number): ComplianceBalanceValue {
+        // Amount should also be strictly treated as a raw double that must pass through the factory's safety trimmer.
         return ComplianceBalanceValue.create(this.value + amount);
     }
 

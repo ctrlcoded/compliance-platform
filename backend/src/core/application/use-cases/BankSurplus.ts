@@ -3,6 +3,7 @@ import { BankSurplusBodyDto } from '../dto/BankingDTO';
 import { BankingService } from '../../domain/services/BankingService';
 import { DomainError } from '../../domain/errors/DomainError';
 import { PrismaClient } from '@prisma/client';
+import { ComplianceBalanceValue } from '../../domain/value-objects';
 
 export class BankSurplus implements BankSurplusUseCase {
     constructor(private readonly prisma: PrismaClient) { }
@@ -24,9 +25,12 @@ export class BankSurplus implements BankSurplusUseCase {
             }
 
             // Historically, the working 'current' CB might be 'adjustedComplianceBalance' or the exact original.
-            const currentWorkingCb = complianceRecord.adjustedComplianceBalance !== null
+            const currentWorkingCbRaw = complianceRecord.adjustedComplianceBalance !== null
                 ? Number(complianceRecord.adjustedComplianceBalance)
                 : Number(complianceRecord.complianceBalance);
+
+            // Wrap in Value Object
+            const currentWorkingCb = ComplianceBalanceValue.create(currentWorkingCbRaw);
 
             // 2. Execute Pure Domain Logic
             const result = BankingService.bankSurplus(currentWorkingCb, input.amount);
@@ -37,7 +41,7 @@ export class BankSurplus implements BankSurplusUseCase {
                     shipId: input.shipId,
                     year: input.year,
                     type: 'BANK',
-                    amount: result.bankedAmount,
+                    amount: result.bankedAmount.value, // Extract unboxed primitive scalar for Prisma
                 },
             });
 
@@ -45,14 +49,14 @@ export class BankSurplus implements BankSurplusUseCase {
             await tx.shipCompliance.update({
                 where: { id: complianceRecord.id },
                 data: {
-                    adjustedComplianceBalance: result.remainingSurplus,
+                    adjustedComplianceBalance: result.remainingSurplus.value.toString(),
                     updatedAt: new Date()
                 },
             });
 
             return {
-                bankedAmount: result.bankedAmount,
-                remainingSurplus: result.remainingSurplus,
+                bankedAmount: result.bankedAmount.value,
+                remainingSurplus: result.remainingSurplus.value,
             };
         });
     }

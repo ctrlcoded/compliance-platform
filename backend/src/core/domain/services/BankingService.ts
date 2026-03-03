@@ -1,4 +1,5 @@
 import { DomainError } from '../errors/DomainError';
+import { ComplianceBalanceValue } from '../value-objects';
 
 export class BankingService {
     /**
@@ -8,8 +9,8 @@ export class BankingService {
      * - Cannot bank more than available surplus
      * - Amount banked must be > 0
      */
-    public static bankSurplus(currentCb: number, requestedBankAmount: number): { remainingSurplus: number; bankedAmount: number } {
-        if (currentCb <= 0) {
+    public static bankSurplus(currentCb: ComplianceBalanceValue, requestedBankAmount: number): { remainingSurplus: ComplianceBalanceValue; bankedAmount: ComplianceBalanceValue } {
+        if (!currentCb.isSurplus()) {
             throw new DomainError('Cannot bank surplus: Compliance Balance is not positive', 'NO_SURPLUS');
         }
 
@@ -17,19 +18,17 @@ export class BankingService {
             throw new DomainError('Bank amount must be greater than zero', 'INVALID_BANK_AMOUNT');
         }
 
-        // Floating-point precision handling during validation
-        const epsilon = 0.0001; // Scale to 4 decimals of precision
-        if (requestedBankAmount > currentCb + epsilon) {
+        // Floating-point precision handling during validation using epsilon
+        const epsilon = 0.0001;
+        if (requestedBankAmount > currentCb.value + epsilon) {
             throw new DomainError('Cannot bank more than the available compliance balance', 'INSUFFICIENT_SURPLUS');
         }
 
-        const bankedAmount = Math.min(requestedBankAmount, currentCb); // Guard precision overflow
-        const remainingSurplus = currentCb - bankedAmount;
+        const actualBankedAmount = Math.min(requestedBankAmount, currentCb.value);
 
-        // Fix precision output
         return {
-            remainingSurplus: this.round4(remainingSurplus),
-            bankedAmount: this.round4(bankedAmount),
+            remainingSurplus: currentCb.subtract(actualBankedAmount),
+            bankedAmount: ComplianceBalanceValue.create(actualBankedAmount),
         };
     }
 
@@ -41,8 +40,8 @@ export class BankingService {
      * - Apply amount must be > 0
      * - CB cannot overshoot into positive territory
      */
-    public static applyBanked(currentCb: number, availableBank: number, requestApplyAmount: number): { cbAfter: number; remainingBank: number } {
-        if (currentCb > 0) {
+    public static applyBanked(currentCb: ComplianceBalanceValue, availableBank: number, requestApplyAmount: number): { cbAfter: ComplianceBalanceValue; remainingBank: ComplianceBalanceValue } {
+        if (!currentCb.isDeficit() && currentCb.value !== 0) {
             throw new DomainError('Cannot apply banked surplus to a year with a positive compliance balance', 'SURPLUS_YEAR');
         }
 
@@ -54,19 +53,11 @@ export class BankingService {
             throw new DomainError('Cannot apply more than the available banked surplus', 'INSUFFICIENT_BANK');
         }
 
-        // Cap the applied amount to ensure we don't apply more than the current deficit
-        const appliedAmount = Math.min(requestApplyAmount, availableBank, Math.abs(currentCb));
-
-        const cbAfter = currentCb + appliedAmount;
-        const remainingBank = availableBank - appliedAmount;
+        const appliedAmount = Math.min(requestApplyAmount, availableBank, Math.abs(currentCb.value));
 
         return {
-            cbAfter: this.round4(cbAfter),
-            remainingBank: this.round4(remainingBank),
+            cbAfter: currentCb.add(appliedAmount),
+            remainingBank: ComplianceBalanceValue.create(availableBank).subtract(appliedAmount),
         };
-    }
-
-    private static round4(value: number): number {
-        return Math.round(value * 10000) / 10000;
     }
 }

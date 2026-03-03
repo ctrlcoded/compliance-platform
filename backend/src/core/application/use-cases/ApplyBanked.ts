@@ -3,6 +3,7 @@ import { ApplyBankedBodyDto } from '../dto/BankingDTO';
 import { BankingService } from '../../domain/services/BankingService';
 import { DomainError } from '../../domain/errors/DomainError';
 import { PrismaClient } from '@prisma/client';
+import { ComplianceBalanceValue } from '../../domain/value-objects';
 
 export class ApplyBanked implements ApplyBankedUseCase {
     constructor(private readonly prisma: PrismaClient) { }
@@ -50,9 +51,12 @@ export class ApplyBanked implements ApplyBankedUseCase {
             const totalApplied = Number(priorApplies._sum.amount || 0);
             const availableBank = totalBanked - totalApplied;
 
-            const currentWorkingCb = currentYearRecord.adjustedComplianceBalance !== null
+            const currentWorkingCbRaw = currentYearRecord.adjustedComplianceBalance !== null
                 ? Number(currentYearRecord.adjustedComplianceBalance)
                 : Number(currentYearRecord.complianceBalance);
+
+            // Wrap in Value Object
+            const currentWorkingCb = ComplianceBalanceValue.create(currentWorkingCbRaw);
 
             // 3. Execute Pure Domain Logic
             const result = BankingService.applyBanked(currentWorkingCb, availableBank, input.amount);
@@ -71,14 +75,14 @@ export class ApplyBanked implements ApplyBankedUseCase {
             await tx.shipCompliance.update({
                 where: { id: currentYearRecord.id },
                 data: {
-                    adjustedComplianceBalance: result.cbAfter,
+                    adjustedComplianceBalance: result.cbAfter.value.toString(),
                     updatedAt: new Date()
                 },
             });
 
             return {
                 applied: input.amount,
-                remainingBanked: result.remainingBank,
+                remainingBanked: result.remainingBank.value,
             };
         });
     }

@@ -1,12 +1,13 @@
 import { DomainError } from '../errors/DomainError';
+import { ComplianceBalanceValue } from '../value-objects';
 
 export interface PoolShip {
     shipId: string;
-    cbBefore: number;
+    cbBefore: ComplianceBalanceValue;
 }
 
 export interface AllocatedPoolShip extends PoolShip {
-    cbAfter: number;
+    cbAfter: ComplianceBalanceValue;
 }
 
 export class PoolAllocator {
@@ -24,14 +25,14 @@ export class PoolAllocator {
             throw new DomainError('A pool must contain at least 2 ships', 'INVALID_POOL_SIZE');
         }
 
-        let sum = 0;
+        let sum = ComplianceBalanceValue.create(0);
         const deficits: PoolShip[] = [];
         const surpluses: PoolShip[] = [];
 
         // 1. Initial categorization and sum calculation
         for (const ship of ships) {
-            sum += ship.cbBefore;
-            if (ship.cbBefore < 0) {
+            sum = sum.add(ship.cbBefore.value);
+            if (ship.cbBefore.isDeficit()) {
                 deficits.push({ ...ship });
             } else {
                 surpluses.push({ ...ship });
@@ -39,14 +40,14 @@ export class PoolAllocator {
         }
 
         // Validation: Pool must be strictly non-negative as a whole
-        if (this.round4(sum) < 0) {
+        if (sum.isDeficit()) {
             throw new DomainError('Pool total compliance balance cannot be negative', 'NEGATIVE_POOL_SUM');
         }
 
         // 2. Sort surpluses descending (largest surplus first)
-        surpluses.sort((a, b) => b.cbBefore - a.cbBefore);
+        surpluses.sort((a, b) => b.cbBefore.value - a.cbBefore.value);
         // Sort deficits ascending (largest deficit first, e.g. -5000 before -1000)
-        deficits.sort((a, b) => a.cbBefore - b.cbBefore);
+        deficits.sort((a, b) => a.cbBefore.value - b.cbBefore.value);
 
         const allocations = new Map<string, number>();
 
@@ -54,9 +55,9 @@ export class PoolAllocator {
         let sIdx = 0; // Surplus index pointer
         let dIdx = 0; // Deficit index pointer
 
-        // Track available surpluses natively
-        const currentSurpluses = surpluses.map((s) => ({ ...s, remaining: s.cbBefore }));
-        const currentDeficits = deficits.map((d) => ({ ...d, remainingRequired: Math.abs(d.cbBefore) }));
+        // Track available surpluses natively using value representation
+        const currentSurpluses = surpluses.map((s) => ({ ...s, remaining: s.cbBefore.value }));
+        const currentDeficits = deficits.map((d) => ({ ...d, remainingRequired: Math.abs(d.cbBefore.value) }));
 
         while (dIdx < currentDeficits.length && sIdx < currentSurpluses.length) {
             const deficitNeeds = currentDeficits[dIdx].remainingRequired;
@@ -69,28 +70,24 @@ export class PoolAllocator {
             currentSurpluses[sIdx].remaining -= transferAmount;
 
             // Record state changes
-            allocations.set(currentDeficits[dIdx].shipId, currentDeficits[dIdx].cbBefore + (Math.abs(currentDeficits[dIdx].cbBefore) - currentDeficits[dIdx].remainingRequired));
+            allocations.set(currentDeficits[dIdx].shipId, currentDeficits[dIdx].cbBefore.value + transferAmount);
             allocations.set(currentSurpluses[sIdx].shipId, currentSurpluses[sIdx].remaining);
 
-            // Advance pointers if exhausted/fulfilled
-            if (this.round4(currentDeficits[dIdx].remainingRequired) === 0) dIdx++;
-            if (this.round4(currentSurpluses[sIdx].remaining) === 0) sIdx++;
+            // Advance pointers if exhausted/fulfilled natively (round4 logic is implicit when wrapping object downstream)
+            if (ComplianceBalanceValue.create(currentDeficits[dIdx].remainingRequired).value === 0) dIdx++;
+            if (ComplianceBalanceValue.create(currentSurpluses[sIdx].remaining).value === 0) sIdx++;
         }
 
         // 4. Construct Final Array
         return ships.map((original) => {
-            const allocated = allocations.get(original.shipId);
-            const cbAfter = allocated !== undefined ? allocated : original.cbBefore;
+            const allocatedRaw = allocations.get(original.shipId);
+            const cbAfterValue = allocatedRaw !== undefined ? allocatedRaw : original.cbBefore.value;
 
             return {
                 shipId: original.shipId,
                 cbBefore: original.cbBefore,
-                cbAfter: this.round4(cbAfter),
+                cbAfter: ComplianceBalanceValue.create(cbAfterValue),
             };
         });
-    }
-
-    private static round4(value: number): number {
-        return Math.round(value * 10000) / 10000;
     }
 }
