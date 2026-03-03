@@ -10,3 +10,11 @@ export type CreatePoolBodyDto = z.infer<typeof createPoolBodySchema>;
 export const getPoolParamSchema = z.object({
     poolId: z.string().uuid('poolId must be a valid UUID'),
 });
+
+export type GetPoolParamDto = z.infer<typeof getPoolParamSchema>;
+
+export const joinPoolBodySchema = z.object({
+    shipId: z.string().min(1, 'shipId is required'),
+});
+
+export type JoinPoolBodyDto = z.infer<typeof joinPoolBodySchema>;

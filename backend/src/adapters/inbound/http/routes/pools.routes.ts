@@ -18,3 +18,11 @@ poolsRouter.post('/', strictRateLimiter, idempotency, (req, res, next) => {
 poolsRouter.get('/:poolId', (req, res, next) => {
     poolsController.getPool(req, res, next).catch(next);
 });
+
+poolsRouter.post('/:poolId/join', strictRateLimiter, idempotency, (req, res, next) => {
+    poolsController.joinPool(req, res, next).catch(next);
+});
+
+poolsRouter.post('/:poolId/leave', strictRateLimiter, (req, res, next) => {
+    poolsController.leavePool(req, res, next).catch(next);
+});

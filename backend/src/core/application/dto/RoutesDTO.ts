@@ -13,6 +13,25 @@ export const baselineRouteParamSchema = z.object({
     routeId: z.string().min(1, 'routeId is required'),
 });
 
+export const routeIdParamSchema = z.object({
+    id: z.string().uuid('id must be a valid UUID'),
+});
+
+export type RouteIdParamDto = z.infer<typeof routeIdParamSchema>;
+
+export const createRouteBodySchema = z.object({
+    shipId: z.string().min(1, 'shipId is required'),
+    vesselType: z.string().min(1, 'vesselType is required'),
+    fuelType: z.string().min(1, 'fuelType is required'),
+    year: z.coerce.number().int().min(2025, 'year must be >= 2025'),
+    ghgIntensity: z.number().positive(),
+    fuelConsumptionTonnes: z.number().positive(),
+    distanceKm: z.number().positive(),
+    totalEmissionsTonnes: z.number().positive(),
+});
+
+export type CreateRouteBodyDto = z.infer<typeof createRouteBodySchema>;
+
 export const compareRoutesQuerySchema = z.object({
     shipId: z.string().min(1, 'shipId is required'),
     year: z.coerce.number().int().min(2025, 'Year must be >= 2025'),
