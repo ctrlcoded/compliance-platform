@@ -35,7 +35,7 @@ app.use(cors({
     credentials: true,
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 app.use(pinoHttp({ logger }));
 
 // Global Rate Limiting
