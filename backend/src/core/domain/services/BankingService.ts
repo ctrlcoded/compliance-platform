@@ -39,6 +39,7 @@ export class BankingService {
      * - Cannot apply more than is banked
      * - Cannot apply to a year that already has a surplus (CB > 0)
      * - Apply amount must be > 0
+     * - CB cannot overshoot into positive territory
      */
     public static applyBanked(currentCb: number, availableBank: number, requestApplyAmount: number): { cbAfter: number; remainingBank: number } {
         if (currentCb > 0) {
@@ -53,7 +54,9 @@ export class BankingService {
             throw new DomainError('Cannot apply more than the available banked surplus', 'INSUFFICIENT_BANK');
         }
 
-        const appliedAmount = Math.min(requestApplyAmount, availableBank);
+        // Cap the applied amount to ensure we don't apply more than the current deficit
+        const appliedAmount = Math.min(requestApplyAmount, availableBank, Math.abs(currentCb));
+
         const cbAfter = currentCb + appliedAmount;
         const remainingBank = availableBank - appliedAmount;
 
