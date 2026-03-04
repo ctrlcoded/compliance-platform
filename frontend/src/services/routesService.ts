@@ -2,11 +2,13 @@ import api from './api';
 import { Route, Comparison, PaginatedResponse, StandardResponse } from '../types';
 
 export const routesService = {
-    // Get all routes for a specific ship and year
-    getRoutes: async (shipId: string, year: number, page = 1, limit = 10) => {
-        const { data } = await api.get<PaginatedResponse<Route>>('/routes', {
-            params: { shipId, year, page, limit }
-        });
+    // Get all routes for a specific ship and year, with optional filters
+    getRoutes: async (shipId: string, year: number, vesselType?: string, fuelType?: string, page = 1, limit = 10) => {
+        const params: any = { shipId, year, page, limit };
+        if (vesselType) params.vesselType = vesselType;
+        if (fuelType) params.fuelType = fuelType;
+
+        const { data } = await api.get<PaginatedResponse<Route>>('/routes', { params });
         return data;
     },
 

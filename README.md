@@ -108,7 +108,27 @@ graph TD
    npm run dev
    ```
 
-## 4. API Documentation
+## 4. Running Tests
+
+The backend domain logic is covered by unit tests using **Vitest**.
+
+```bash
+cd backend
+
+# Run all tests once
+npm test
+
+# Run tests in watch mode (re-runs on file changes)
+npm run test:watch
+```
+
+**Test files located at:**
+- `tests/core/domain/services/ComplianceCalculator.test.ts`
+- `tests/core/domain/services/BankingService.test.ts`
+- `tests/core/domain/services/PoolAllocator.test.ts`
+- `tests/core/domain/services/RouteComparisonService.test.ts`
+
+## 5. API Documentation
 
 All routes require a valid JWT token in the `Authorization: Bearer <token>` header, except for explicitly public endpoints (if configured).
 
@@ -145,7 +165,7 @@ All routes require a valid JWT token in the `Authorization: Bearer <token>` head
 
 ---
 
-## 5. How Compliance Works
+## 6. How Compliance Works
 
 The FuelEU Maritime logic is deeply integrated into the `core/domain/` layer of the backend using Value Objects to ensure mathematical precision.
 
@@ -171,7 +191,7 @@ Ships can form a pool to share their CB. Pool creation strictly enforces that th
 The `Adjusted CB` is the final calculation metric used on the Dashboard. It dynamically resolves:
 `Adjusted CB = Static_CB + Applied_Banked_Surplus + Pool_Allocation_Offset`
 
-## 6. Security Measures
+## 7. Security Measures
 
 This platform is hardened for production financial data:
 1. **Hexagonal Immutability**: Business rules cannot be bypassed at the API layer because controllers have no access to the DB wrapper, passing pure data payloads instead.
@@ -181,7 +201,7 @@ This platform is hardened for production financial data:
 5. **CORS and Payload Guardrails**: Minimal Express config ensuring 1MB strict body limits and environmental CORS validation mapping exclusively to `VITE_API_URL`.
 6. **Idempotency**: Sensitive state machine updates enforce Idempotency keys (`X-Idempotency-Key` header) to prevent double firing on network retries.
 
-## 7. Project Structure Details
+## 8. Project Structure Details
 
 ### Backend Code
 The backend enforces Clean Architecture heavily:
@@ -196,13 +216,13 @@ The backend enforces Clean Architecture heavily:
 - Separates network side-effects completely using isolated `Axios` wrappers in `/services/`.
 - Uses `TailwindCSS` directly mapping cleanly without bloated UI component libraries.
 
-## 8. Design Decisions
+## 9. Design Decisions
 
 - **Hexagonal Architecture (Clean Architecture)**: The maritime compliance calculations are exceptionally complex and will change as EU regulations shift in 2030, 2035, etc. If business logic was tied into Express `req/res` handlers, upgrades would be a nightmare. By isolating it, we can independently test math without booting an HTTP server.
 - **Prisma ORM**: Guarantees type-safety all the way down to the Postgres columns, bridging seamlessly into our inbound/outbound Port layer interfaces.
 - **Value Objects**: Ensuring `Amount` or `GHGIntensity` are instantiated explicitly prevents arithmetic errors where raw `numbers` meant for distance are multiplied against `numbers` meant for energy. 
 
-## 9. Future Improvements
+## 10. Future Improvements
 
 Given the MVP scope of this production skeleton, upcoming roadmap features include:
 1. **Role-Based Access Control (RBAC)**: Fine-grained permissions (e.g., separating "Fleet Managers" who can read data vs "Compliance Officers" who can explicitly execute Pooling).
