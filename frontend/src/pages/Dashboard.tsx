@@ -11,8 +11,8 @@ export default function Dashboard() {
         const fetchDashboard = async () => {
             try {
                 setLoading(true);
-                // Using sample shipId 'S1' and year 2025 for prototype scaffolding
-                const response = await dashboardService.getAdjustedCb('S1', 2025);
+                // Using seeded ship data for demo
+                const response = await dashboardService.getAdjustedCb('IMO-1111111', 2025);
                 setData(response.data);
             } catch (err: any) {
                 setError(err.message || 'Failed to fetch dashboard data');

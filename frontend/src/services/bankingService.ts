@@ -19,9 +19,9 @@ export const bankingService = {
     },
 
     // Get full banking ledger history
-    getLedger: async (shipId: string) => {
-        const { data } = await api.get<StandardResponse<BankEntry[]>>('/banking/ledger', {
-            params: { shipId }
+    getLedger: async (shipId: string, year: number = 2025) => {
+        const { data } = await api.get<StandardResponse<BankEntry[]>>('/banking/records', {
+            params: { shipId, year }
         });
         return data;
     }

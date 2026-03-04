@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
-import { JoinPoolUseCase, PoolOutput } from '../../ports/inbound/PoolUseCases';
-import { JoinPoolBodyDto } from '../../application/dto/PoolsDTO';
-import { DomainError } from '../../domain/errors/DomainError';
-import { ComplianceCalculator } from '../../domain/services/ComplianceCalculator';
+import { JoinPoolUseCase, PoolOutput } from '../../../ports/inbound/PoolUseCases';
+import { JoinPoolBodyDto } from '../../dto/PoolsDTO';
+import { DomainError } from '../../../domain/errors/DomainError';
+import { ComplianceCalculator } from '../../../domain/services/ComplianceCalculator';
 
 export class JoinPool implements JoinPoolUseCase {
     constructor(private readonly prisma: PrismaClient, private readonly calculator: ComplianceCalculator) { }

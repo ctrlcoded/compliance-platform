@@ -1,0 +1,51 @@
+﻿
+=== SHIP COMPLIANCE RECORDS ===
+node.exe : C:\Users\91741\Desktop\webd_projects\complianc
+e-platform\backend\node_modules\@prisma\client\src\runtim
+e\RequestHandler.ts:242
+At C:\Program Files\nodejs\npx.ps1:29 char:3
++   & $NODE_EXE $NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\91 
+   741\...tHandler.ts:242:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+      throw new PrismaClientInitializationError(message, 
+this.client._clientVersion)
+            ^
+PrismaClientInitializationError: 
+Invalid `prisma.shipCompliance.findMany()` invocation in
+C:\Users\91741\Desktop\webd_projects\compliance-platform\
+backend\prisma\verify.ts:7:52
+
+  4 
+  5 async function verify() {
+  6     console.log('\n=== SHIP COMPLIANCE RECORDS ===');
+ΓåÆ 7     const compliance = await 
+prisma.shipCompliance.findMany(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:7
+   | 
+ 6 |   provider = "postgresql"
+ 7 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at ei.handleRequestError (C:\Users\91741\Desktop\webd
+_projects\compliance-platform\backend\node_modules\@prism
+a\client\src\runtime\RequestHandler.ts:242:13)
+    at ei.handleAndLogRequestError (C:\Users\91741\Deskto
+p\webd_projects\compliance-platform\backend\node_modules\
+@prisma\client\src\runtime\RequestHandler.ts:174:12)
+    at ei.request (C:\Users\91741\Desktop\webd_projects\c
+ompliance-platform\backend\node_modules\@prisma\client\sr
+c\runtime\RequestHandler.ts:143:12)
+    at async a (C:\Users\91741\Desktop\webd_projects\comp
+liance-platform\backend\node_modules\@prisma\client\src\r
+untime\getPrismaClient.ts:833:24)
+    at async verify (C:\Users\91741\Desktop\webd_projects
+\compliance-platform\backend\prisma\verify.ts:7:24) {
+  clientVersion: '6.19.2',
+  errorCode: undefined,
+  retryable: undefined
+}

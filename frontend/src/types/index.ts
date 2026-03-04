@@ -30,7 +30,7 @@ export interface BankEntry {
     shipId: string;
     year: number;
     amount: number;
-    type: 'SURPLUS' | 'APPLY';
+    type: 'SURPLUS' | 'APPLY' | 'BANK';
     createdAt: string;
 }
 

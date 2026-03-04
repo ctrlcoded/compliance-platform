@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { GetPoolUseCase, PoolOutput } from '../../ports/inbound/PoolUseCases';
-import { DomainError } from '../../domain/errors/DomainError';
+import { GetPoolUseCase, PoolOutput } from '../../../ports/inbound/PoolUseCases';
+import { DomainError } from '../../../domain/errors/DomainError';
 
 export class GetPool implements GetPoolUseCase {
     constructor(private readonly prisma: PrismaClient) { }

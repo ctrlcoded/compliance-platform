@@ -2,6 +2,12 @@ import api from './api';
 import { Pool, StandardResponse } from '../types';
 
 export const poolsService = {
+    // List all pools
+    listPools: async () => {
+        const { data } = await api.get<StandardResponse<Pool[]>>('/pools');
+        return data;
+    },
+
     // Create a new pool
     createPool: async (year: number, shipIds: string[]) => {
         const { data } = await api.post<StandardResponse<Pool>>('/pools', {

@@ -11,8 +11,8 @@ export default function Routes() {
         const fetchRoutes = async () => {
             try {
                 setLoading(true);
-                // Using sample shipId 'S1' and year 2025 for prototype scaffolding
-                const response = await routesService.getRoutes('S1', 2025);
+                // Using seeded ship data for demo
+                const response = await routesService.getRoutes('IMO-1111111', 2025);
                 setRoutes(response.data);
             } catch (err: any) {
                 setError(err.message || 'Failed to fetch routes');

@@ -120,7 +120,8 @@ class DIContainer {
             this.createPoolUseCase,
             this.getPoolUseCase,
             this.joinPoolUseCase,
-            this.leavePoolUseCase
+            this.leavePoolUseCase,
+            prisma
         );
     }
 

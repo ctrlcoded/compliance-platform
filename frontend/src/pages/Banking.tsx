@@ -11,8 +11,8 @@ export default function Banking() {
         const fetchLedger = async () => {
             try {
                 setLoading(true);
-                // Using sample shipId 'S1' for prototype scaffolding
-                const response = await bankingService.getLedger('S1');
+                // Using seeded ship data for demo
+                const response = await bankingService.getLedger('IMO-1111111');
                 setEntries(response.data);
             } catch (err: any) {
                 setError(err.message || 'Failed to fetch banking ledger');

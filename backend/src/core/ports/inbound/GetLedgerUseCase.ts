@@ -1,7 +1,9 @@
 import { GetLedgerQueryDto } from '../../application/dto/BankingDTO';
 
 export interface LedgerRecord {
-    bankEntryId: string;
+    id: string;
+    shipId: string;
+    year: number;
     type: string;
     amount: number;
     createdAt: string;

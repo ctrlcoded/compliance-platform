@@ -9,6 +9,7 @@ import { bankingRouter } from '../../adapters/inbound/http/routes/banking.routes
 import { poolsRouter } from '../../adapters/inbound/http/routes/pools.routes';
 import { errorHandler } from '../../adapters/inbound/http/middlewares/errorHandler';
 import { globalRateLimiter } from '../../adapters/inbound/http/middlewares/rateLimiter';
+import { authRouter } from '../../adapters/inbound/http/routes/auth.routes';
 
 import { env } from '../config/env';
 
@@ -47,6 +48,7 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
+app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/compliance', complianceRouter);
 app.use('/api/v1/routes', routesRouter);
 app.use('/api/v1/banking', bankingRouter);

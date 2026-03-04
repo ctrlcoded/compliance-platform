@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
-import { GetComparisonUseCase, ComparisonOutput } from '../../ports/inbound/RouteUseCases';
-import { CompareRoutesQueryDto } from '../../application/dto/RoutesDTO';
-import { RouteComparisonService } from '../../domain/services/RouteComparisonService';
-import { DomainError } from '../../domain/errors/DomainError';
+import { GetComparisonUseCase, ComparisonOutput } from '../../../ports/inbound/RouteUseCases';
+import { CompareRoutesQueryDto } from '../../dto/RoutesDTO';
+import { RouteComparisonService } from '../../../domain/services/RouteComparisonService';
+import { DomainError } from '../../../domain/errors/DomainError';
 
 export class GetComparison implements GetComparisonUseCase {
     constructor(private readonly prisma: PrismaClient) { }

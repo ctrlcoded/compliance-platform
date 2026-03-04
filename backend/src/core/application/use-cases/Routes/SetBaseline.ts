@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { SetBaselineUseCase, RouteOutput } from '../../ports/inbound/RouteUseCases';
-import { DomainError } from '../../domain/errors/DomainError';
+import { SetBaselineUseCase, RouteOutput } from '../../../ports/inbound/RouteUseCases';
+import { DomainError } from '../../../domain/errors/DomainError';
 
 export class SetBaseline implements SetBaselineUseCase {
     constructor(private readonly prisma: PrismaClient) { }

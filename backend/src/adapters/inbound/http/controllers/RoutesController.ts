@@ -16,7 +16,7 @@ export class RoutesController {
         try {
             const query = getRoutesQuerySchema.parse(req.query);
             // Get user's authorized ship IDs from JWT token via auth middleware
-            const allowedShipIds = req.user!.shipIds;
+            const allowedShipIds = (req.user as any).shipIds;
 
             const result = await this.getRoutesUseCase.execute(query, allowedShipIds);
 
@@ -36,7 +36,7 @@ export class RoutesController {
     public async createRoute(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const body = createRouteBodySchema.parse(req.body);
-            const allowedShipIds = req.user!.shipIds;
+            const allowedShipIds = (req.user as any).shipIds;
 
             // Authorization explicitly checked within the API layer before passing to the UC
             // Technically a middleware ownership verification is also possible, but this is explicit
@@ -56,7 +56,7 @@ export class RoutesController {
     public async getRouteById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const params = routeIdParamSchema.parse(req.params);
-            const allowedShipIds = req.user!.shipIds;
+            const allowedShipIds = (req.user as any).shipIds;
 
             const result = await this.getRouteByIdUseCase.execute(params.id, allowedShipIds);
 
@@ -69,7 +69,7 @@ export class RoutesController {
     public async setBaseline(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const params = baselineRouteParamSchema.parse(req.params);
-            const allowedShipIds = req.user!.shipIds;
+            const allowedShipIds = (req.user as any).shipIds;
 
             const result = await this.setBaselineUseCase.execute(params.routeId, allowedShipIds);
 
@@ -82,7 +82,7 @@ export class RoutesController {
     public async deleteRoute(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const params = routeIdParamSchema.parse(req.params);
-            const allowedShipIds = req.user!.shipIds;
+            const allowedShipIds = (req.user as any).shipIds;
 
             await this.deleteRouteUseCase.execute(params.id, allowedShipIds);
 
@@ -95,7 +95,7 @@ export class RoutesController {
     public async getComparison(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const query = compareRoutesQuerySchema.parse(req.query);
-            const allowedShipIds = req.user!.shipIds;
+            const allowedShipIds = (req.user as any).shipIds;
 
             // Strict route ownership constraint for comparison reports
             if (!allowedShipIds.includes(query.shipId)) {

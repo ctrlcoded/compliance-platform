@@ -30,7 +30,9 @@ export class GetLedger implements GetLedgerUseCase {
 
         return {
             data: records.map((r) => ({
-                bankEntryId: r.id,
+                id: r.id,
+                shipId: r.shipId,
+                year: r.year,
                 type: r.type,
                 amount: Number(r.amount),
                 createdAt: r.createdAt.toISOString(),

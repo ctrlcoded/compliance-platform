@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { GetRoutesUseCase, GetRoutesOutput } from '../../ports/inbound/RouteUseCases';
-import { GetRoutesQueryDto } from '../../application/dto/RoutesDTO';
+import { GetRoutesUseCase, GetRoutesOutput } from '../../../ports/inbound/RouteUseCases';
+import { GetRoutesQueryDto } from '../../dto/RoutesDTO';
 
 export class GetRoutes implements GetRoutesUseCase {
     constructor(private readonly prisma: PrismaClient) { }

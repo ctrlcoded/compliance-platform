@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { DeleteRouteUseCase } from '../../ports/inbound/RouteUseCases';
-import { DomainError } from '../../domain/errors/DomainError';
+import { DeleteRouteUseCase } from '../../../ports/inbound/RouteUseCases';
+import { DomainError } from '../../../domain/errors/DomainError';
 
 export class DeleteRoute implements DeleteRouteUseCase {
     constructor(private readonly prisma: PrismaClient) { }

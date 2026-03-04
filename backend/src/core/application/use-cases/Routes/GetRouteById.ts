@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { GetRouteByIdUseCase, RouteOutput } from '../../ports/inbound/RouteUseCases';
-import { DomainError } from '../../domain/errors/DomainError';
+import { GetRouteByIdUseCase, RouteOutput } from '../../../ports/inbound/RouteUseCases';
+import { DomainError } from '../../../domain/errors/DomainError';
 
 export class GetRouteById implements GetRouteByIdUseCase {
     constructor(private readonly prisma: PrismaClient) { }

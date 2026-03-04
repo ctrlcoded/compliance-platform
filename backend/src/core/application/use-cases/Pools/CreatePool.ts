@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
-import { CreatePoolUseCase, PoolOutput } from '../../ports/inbound/PoolUseCases';
-import { CreatePoolBodyDto } from '../../application/dto/PoolsDTO';
-import { DomainError } from '../../domain/errors/DomainError';
-import { ComplianceCalculator } from '../../domain/services/ComplianceCalculator';
-import { ComplianceBalanceValue, EnergyInScope, GHGIntensity } from '../../domain/value-objects';
+import { CreatePoolUseCase, PoolOutput } from '../../../ports/inbound/PoolUseCases';
+import { CreatePoolBodyDto } from '../../dto/PoolsDTO';
+import { DomainError } from '../../../domain/errors/DomainError';
+import { ComplianceCalculator } from '../../../domain/services/ComplianceCalculator';
+import { ComplianceBalanceValue, EnergyInScope, GHGIntensity } from '../../../domain/value-objects';
 
 export class CreatePool implements CreatePoolUseCase {
     constructor(private readonly prisma: PrismaClient, private readonly calculator: ComplianceCalculator) { }

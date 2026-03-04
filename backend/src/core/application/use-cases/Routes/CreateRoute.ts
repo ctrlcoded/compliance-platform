@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import { CreateRouteUseCase, RouteOutput } from '../../ports/inbound/RouteUseCases';
-import { CreateRouteBodyDto } from '../../application/dto/RoutesDTO';
-import { DomainError } from '../../domain/errors/DomainError';
+import { CreateRouteUseCase, RouteOutput } from '../../../ports/inbound/RouteUseCases';
+import { CreateRouteBodyDto } from '../../dto/RoutesDTO';
+import { DomainError } from '../../../domain/errors/DomainError';
 
 export class CreateRoute implements CreateRouteUseCase {
     constructor(private readonly prisma: PrismaClient) { }

@@ -11,6 +11,10 @@ const poolsController = container.getPoolsController();
 poolsRouter.use(requireAuth);
 poolsRouter.use(requireShipOwnership);
 
+poolsRouter.get('/', (req, res, next) => {
+    poolsController.listPools(req, res, next).catch(next);
+});
+
 poolsRouter.post('/', strictRateLimiter, idempotency, (req, res, next) => {
     poolsController.createPool(req, res, next).catch(next);
 });
