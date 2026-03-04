@@ -79,10 +79,11 @@ graph TD
    FRONTEND_URL="http://localhost:5173"
    LOG_LEVEL=info
    ```
-4. Run database migrations and generate the Prisma Client:
+4. Run database migrations and populate the development data:
    ```bash
    npx prisma generate
    npx prisma migrate dev
+   npm run seed
    ```
 5. Start the development server:
    ```bash
