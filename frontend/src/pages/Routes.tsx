@@ -58,10 +58,12 @@ export default function Routes() {
                     <label className="block text-xs font-medium text-gray-700 mb-1">Vessel Type</label>
                     <select className="border border-gray-300 rounded-md p-2 text-sm" value={vesselType} onChange={e => setVesselType(e.target.value)}>
                         <option value="">All Vessels</option>
-                        <option value="Container">Container</option>
+                        <option value="Container Ship">Container Ship</option>
                         <option value="Bulk Carrier">Bulk Carrier</option>
-                        <option value="Tanker">Tanker</option>
-                        <option value="Ro-Ro">Ro-Ro</option>
+                        <option value="Ro-Ro Cargo">Ro-Ro Cargo</option>
+                        <option value="Cruise Ship">Cruise Ship</option>
+                        <option value="Oil Tanker">Oil Tanker</option>
+                        <option value="Gas Carrier">Gas Carrier</option>
                     </select>
                 </div>
                 <div>
